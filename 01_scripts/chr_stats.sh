@@ -6,8 +6,8 @@
 
 # VARIABLES
 DRAFT_DIR="03_draft"
-DRAFT="$DRAFT_DIR/flye_defaults.fasta.gz"
-FINAL_NCBI="08_final_NCBI/GCA_029448725.1_ASM2944872v1_genomic.fna.gz"
+DRAFT="$DRAFT_DIR/flye_defaults.fasta"
+FINAL_NCBI="08_final_NCBI/GCA_029448725.1_ASM2944872v1_genomic.fna"
 
 
 # LOAD REQUIRED MODULES
@@ -19,14 +19,14 @@ module load bedtools/2.30.0
 ## Make a list of chromosomes 
 
 ## Unzip
-gzip -d $FINAL_NCBI 
+#gzip -d $FINAL_NCBI 
 
 ## Index
-samtools faidx "${FINAL_NCBI%.*}"
+samtools faidx $FINAL_NCBI
 
 
 ## Make bed and extract chr: Unplaced contigs names start with JAQ
-less "${FINAL_NCBI%.*}".fai | awk -F '\t' '{printf("%s\t0\t%s\n",$1,$2);}' | grep -v 'JAQ' > "${FINAL_NCBI%.fna*}".bed
+less "$FINAL_NCBI".fai | awk -F '\t' '{printf("%s\t0\t%s\n",$1,$2);}' | grep -v 'JAQ' > "${FINAL_NCBI%.fna*}".bed
 
 
 ## Remove unplaced scaffolds from fasta
