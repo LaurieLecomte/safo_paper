@@ -9,9 +9,8 @@
 FINAL_NCBI="08_final_NCBI/GCA_029448725.1_ASM2944872v1_genomic.fna"
 FINAL_NCBI_CHR="08_final_NCBI/GCA_029448725.1_ASM2944872v1_genomic_chrs.fasta"
 
-RM_DIR="08_final_NCBI/RepeatMasker"
-
-SALMO="salmo/genome.fasta"
+RMOD_DIR="08_final_NCBI/RepeatModeler"
+RMAS_DIR="08_final_NCBI/RepeatMasker"
 
 CPU=10
 
@@ -19,6 +18,12 @@ CPU=10
 module load RepeatModeler/2.0.1
 
 
-# run on salmo genome
-BuildDatabase -name ssalar $SALMO
-RepeatModeler -pa $CPU -species 'salmo salar' $SALMO -dir salmo -gff
+# De novo detection of repeats in whole assembly
+cd "$RMOD_DIR"
+BuildDatabase -name safo ../../$FINAL_NCBI
+RepeatModeler -pa $CPU -database safo
+
+# De novo detection in chromosomes only
+#cd "../$RMOD_DIR/all"
+#BuildDatabase -name safo_chr $FINAL_NCBI_CHR
+#RepeatModeler -pa $CPU -database safo_chr

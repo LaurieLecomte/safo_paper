@@ -20,7 +20,7 @@ module load bedtools/2.30.0
 #gzip -d $SCAF2 
 
 ## Index
-samtools faidx $SCAF2
+#samtools faidx $SCAF2
 
 
 ## Make bed and extract chr: Unplaced contigs names start with scaf
@@ -28,7 +28,7 @@ less "$SCAF2".fai | awk -F '\t' '{printf("%s\t0\t%s\n",$1,$2);}' | grep -v 'scaf
 
 
 ## Remove unplaced scaffolds from fasta
-bedtools getfasta -fi "$SCAF2" -bed "${SCAF2%.fasta*}".chrs.bed -fullHeader > "${SCAF2%.*}".chrs.fasta
+bedtools getfasta -fi "$SCAF2" -bed "${SCAF2%.*}".chrs.bed -fullHeader > "${SCAF2%.*}".chrs.fasta
 
 # 2. Count bases in fasta
 ## Count bases
