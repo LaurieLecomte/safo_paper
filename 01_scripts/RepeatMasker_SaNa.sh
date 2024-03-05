@@ -67,7 +67,9 @@ do
 done
 
 ## I edited line 108 of Eric's script to avoid sorting chr by new character and preserve original order. I did not change sorting command at line 117 because I know I do not have other contigs than my main chrs. 
-python3 01_scripts/rename_scaffolds.py $SYN_DIR/SaNa.chrs_noMt.fasta $SYN_DIR/SaNa.chrs_noMt.corrsp.txt 10000 $SYN_DIR/SaNa.chrs_noMt_renamed.fasta
+## # rename file to prevent issues with nucmer afterwards
+python3 01_scripts/rename_scaffolds.py $SYN_DIR/SaNa.chrs_noMt.fasta $SYN_DIR/SaNa.chrs_noMt.corrsp.txt 10000 $SYN_DIR/query_SaNa.chrs_noMt_renamed.fasta
+
 
 # 2. Run RepeatMasker renamed fasta
-#RepeatMasker -pa $CPU $FINAL_NCBI -dir $SYN_DIR -gff -lib $LIB
+#RepeatMasker -pa $CPU $SYN_DIR/query_SaNa.chrs_noMt_renamed.fasta -dir $SYN_DIR -gff -lib $LIB
