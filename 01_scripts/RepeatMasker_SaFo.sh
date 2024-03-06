@@ -1,7 +1,9 @@
 #!/bin/sh
 
+# Run RepeatMasker on chromosomes only for synteny analysis
+
 # Run on Manitou
-# srun -p medium -c 6 --mem=50G --time=7-00:00:00 -J RepeatMasker_SaNa -o log/RepeatMasker_SaNa_%j.log /bin/sh 01_scripts/RepeatMasker_SaNa.sh &
+# srun -p medium -c 10 --mem=50G --time=7-00:00:00 -J RepeatMasker_SaFo -o log/RepeatMasker_SaFo_%j.log /bin/sh 01_scripts/RepeatMasker_SaFo.sh &
 
 
 # VARIABLES
@@ -9,15 +11,13 @@
 FINAL_NCBI="08_final_NCBI/GCA_029448725.1_ASM2944872v1_genomic.fna"
 FINAL_NCBI_CHR="08_final_NCBI/GCA_029448725.1_ASM2944872v1_genomic_chrs.fasta"
 
-SYN_DIR="synteny/SaFo_SaNa"
-
-SANA="species_comparison/GCA_016432855.1_SaNama_1.0_genomic.fna"
-SANA_CHRS="species_comparison/GCA_016432855.1_SaNama_1.0_genomic.chrs.fasta"
+SYN_DIR="synteny"
 
 RMOD_DIR="08_final_NCBI/RepeatModeler"
 RMAS_DIR="08_final_NCBI/RepeatMasker"
 
 CPU=6
+
 
 # LOAD REQUIRED MODULES 
 module load gnu-openmpi/4.1.4
@@ -39,38 +39,37 @@ fi
 
 # 1. Extract chromosomes from fasta
 ## Index
-#samtools faidx $SANA
+#samtools faidx $FINAL_NCBI
 ## Make bed and extract chr: Unplaced contigs names start with scaf, and remove mitochondrion for synteny analysis
-less "$SANA".fai | awk -F '\t' '{printf("%s\t0\t%s\n",$1,$2);}' | grep -E "^CM|HG|LR" | grep -v 'CM028292.1' > $SYN_DIR/SaNa.chrs_noMt.bed
-less $SYN_DIR/SaNa.chrs_noMt.bed | wc -l 
-## Remove unplaced scaffolds and mitochondrion from fasta
-bedtools getfasta -fi "$SANA" -bed $SYN_DIR/SaNa.chrs_noMt.bed > $SYN_DIR/SaNa.chrs_noMt.fasta
+less "$FINAL_NCBI".fai | awk -F '\t' '{printf("%s\t0\t%s\n",$1,$2);}' | grep -E "^CM|HG|LR" | grep -v 'CM055727.1' > $SYN_DIR/SaFo.chrs_noMt.bed
+less $SYN_DIR/SaFo.chrs_noMt.bed | wc -l 
+## Remove unplaced scaffolds
+bedtools getfasta -fi $FINAL_NCBI -bed $SYN_DIR/SaFo.chrs_noMt.bed > $SYN_DIR/SaFo.chrs_noMt.fasta
 
 # 2. Rename chromosomes
 ## Make correspondance file
-samtools faidx $SYN_DIR/SaNa.chrs_noMt.fasta
+samtools faidx $SYN_DIR/SaFo.chrs_noMt.fasta
 
-if [[ -f $SYN_DIR/SaNa.chrs_noMt.corrsp.txt ]]
+if [[ -f $SYN_DIR/SaFo.chrs_noMt.corrsp.txt ]]
 then
-  rm $SYN_DIR/SaNa.chrs_noMt.corrsp.txt
+  rm $SYN_DIR/SaFo.chrs_noMt.corrsp.txt
 fi
 
 
 count=0
-less $SYN_DIR/SaNa.chrs_noMt.fasta.fai | while read line
+less $SYN_DIR/SaFo.chrs_noMt.fasta.fai | while read line
 do
     ((count+=1))
     CHR=$(echo "$line" | cut -f1 )
-    echo -e "$CHR\tChr$count" >> $SYN_DIR/SaNa.chrs_noMt.corrsp.txt 
+    echo -e "$CHR\tChr$count" >> $SYN_DIR/SaFo.chrs_noMt.corrsp.txt 
 done
 
 ## I edited line 108 of Eric's script to avoid sorting chr by new character and preserve original order. I did not change sorting command at line 117 because I know I do not have other contigs than my main chrs. 
 ## # rename file to prevent issues with nucmer afterwards
-python3 01_scripts/rename_scaffolds.py $SYN_DIR/SaNa.chrs_noMt.fasta $SYN_DIR/SaNa.chrs_noMt.corrsp.txt 10000 $SYN_DIR/query_SaNa.chrs_noMt_renamed.fasta
+python3 01_scripts/rename_scaffolds.py $SYN_DIR/SaFo.chrs_noMt.fasta $SYN_DIR/SaFo.chrs_noMt.corrsp.txt 10000 $SYN_DIR/ref_SaFo.chrs_noMt_renamed.fasta
 
 # 3. Create repeat library for Salmoniformes
 queryRepeatDatabase.pl -species 'Salmoniformes' > $SYN_DIR/Salmoniformes.fa
  
- 
 # 4. Run RepeatMasker renamed fasta
-#RepeatMasker -pa $CPU $SYN_DIR/query_SaNa.chrs_noMt_renamed.fasta -dir $SYN_DIR -gff -lib $SYN_DIR/Salmoniformes.fa
+#RepeatMasker -pa $CPU $SYN_DIR/ref_SaFo.chrs_noMt_renamed.fasta -dir $SYN_DIR -gff -lib $SYN_DIR/Salmoniformes.fa

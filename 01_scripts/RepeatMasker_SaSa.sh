@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Run on Manitou
-# srun -p medium -c 10 --mem=50G --time=7-00:00:00 -J RepeatMasker_SaNa -o log/RepeatMasker_SaNa_%j.log /bin/sh 01_scripts/RepeatMasker_SaNa.sh &
+# srun -p medium -c 6 --mem=50G --time=7-00:00:00 -J RepeatMasker_SaNa -o log/RepeatMasker_SaNa_%j.log /bin/sh 01_scripts/RepeatMasker_SaNa.sh &
 
 
 # VARIABLES
@@ -17,7 +17,7 @@ SASA_CHRS="species_comparison/GCA_905237065.2_Ssal_v3.1_genomic_chrs.fna"
 RMOD_DIR="08_final_NCBI/RepeatModeler"
 RMAS_DIR="08_final_NCBI/RepeatMasker"
 
-CPU=10
+CPU=6
 
 LIB="$RMAS_DIR/all_Salmoniformes/Salmoniformes_and_SaFo_lib.fa"
 
@@ -46,7 +46,7 @@ fi
 less "$SASA".fai | awk -F '\t' '{printf("%s\t0\t%s\n",$1,$2);}' | grep -E "^CM|HG|LR" > $SYN_DIR/SaSa.chrs.bed
 less $SYN_DIR/SaSa.chrs.bed | wc -l 
 ## Remove unplaced scaffolds
-bedtools getfasta -fi "$SANA" -bed $SYN_DIR/SaSa.chrs.bed > $SYN_DIR/SaSa.chrs.fasta
+bedtools getfasta -fi $SASA -bed $SYN_DIR/SaSa.chrs.bed > $SYN_DIR/SaSa.chrs.fasta
 
 # 2. Rename chromosomes
 ## Make correspondance file
@@ -70,6 +70,9 @@ done
 ## # rename file to prevent issues with nucmer afterwards
 python3 01_scripts/rename_scaffolds.py $SYN_DIR/SaSa.chrs.fasta $SYN_DIR/SaSa.chrs.corrsp.txt 10000 $SYN_DIR/query_SaSa.chrs_renamed.fasta
 
-#
-# 2. Run RepeatMasker renamed fasta
-#RepeatMasker -pa $CPU $SYN_DIR/query_SaSa.chrs_renamed.fasta -dir $SYN_DIR -gff -lib $LIB
+# 3. Create repeat library for Salmoniformes
+queryRepeatDatabase.pl -species 'Salmoniformes' > $SYN_DIR/Salmoniformes.fa
+ 
+
+# 4. Run RepeatMasker renamed fasta
+#RepeatMasker -pa $CPU $SYN_DIR/query_SaSa.chrs_renamed.fasta -dir $SYN_DIR -gff -lib $SYN_DIR/Salmoniformes.fa
