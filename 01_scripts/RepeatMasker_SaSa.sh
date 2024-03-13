@@ -19,15 +19,17 @@ RMAS_DIR="08_final_NCBI/RepeatMasker"
 
 CPU=6
 
-LIB="$RMAS_DIR/all_Salmoniformes/Salmoniformes_and_SaFo_lib.fa"
+SAFO_CLASS_LIB="$RMOD_DIR/safo-families.fa"
+SAFO_SALMO_LIB="$RMAS_DIR/combined_safo_Salmonidae_desc.fa" # we use the custom library produced by the final_NCBI_RepeatMasker_famdb.sh scripts
 
 # LOAD REQUIRED MODULES 
 module load gnu-openmpi/4.1.4
 module load exonerate/2.4.0
-module load RepeatMasker/4.0.8
+#module load RepeatMasker/4.0.8
+module load RepeatMasker/4.1.2
 module load ncbiblast/2.6.0
 module load python/2.7
-module load maker/2.31.10
+#module load maker/2.31.10
 
 module load samtools/1.15
 module load bedtools/2.30.0
@@ -75,4 +77,4 @@ queryRepeatDatabase.pl -species 'Salmoniformes' > $SYN_DIR/Salmoniformes.fa
  
 
 # 4. Run RepeatMasker renamed fasta
-#RepeatMasker -pa $CPU $SYN_DIR/query_SaSa.chrs_renamed.fasta -dir $SYN_DIR -gff -lib $SYN_DIR/Salmoniformes.fa
+RepeatMasker -pa $CPU $SYN_DIR/query_SaSa.chrs_renamed.fasta -dir $SYN_DIR -gff -lib $SAFO_SALMO_LIB
