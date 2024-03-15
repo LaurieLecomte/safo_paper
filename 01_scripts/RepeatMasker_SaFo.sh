@@ -19,7 +19,7 @@ RMAS_DIR="08_final_NCBI/RepeatMasker"
 CPU=6
 
 SAFO_CLASS_LIB="$RMOD_DIR/safo-families.fa"
-SAFO_SALMO_LIB="$RMAS_DIR/combined_safo_Salmonidae_desc.fa" # we use the custom library produced by the final_NCBI_RepeatMasker_famdb.sh scripts
+SAFO_SALMO_LIB="$RMAS_DIR/all_famdb_salmonidae/combined_safo_Salmonidae_desc.fa" # we use the custom library produced by the final_NCBI_RepeatMasker_famdb.sh scripts
 
 
 # LOAD REQUIRED MODULES 

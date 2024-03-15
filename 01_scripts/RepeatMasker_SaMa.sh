@@ -21,7 +21,7 @@ RMAS_DIR="08_final_NCBI/RepeatMasker"
 CPU=6
 
 SAFO_CLASS_LIB="$RMOD_DIR/safo-families.fa"
-SAFO_SALMO_LIB="$RMAS_DIR/combined_safo_Salmonidae_desc.fa" # we use the custom library produced by the final_NCBI_RepeatMasker_famdb.sh scripts
+SAFO_SALMO_LIB="$RMAS_DIR/all_famdb_salmonidae/combined_safo_Salmonidae_desc.fa" # we use the custom library produced by the final_NCBI_RepeatMasker_famdb.sh scripts
 
 # LOAD REQUIRED MODULES 
 module load gnu-openmpi/4.1.4
@@ -49,7 +49,7 @@ fi
 less "$SAMA".fai | awk -F '\t' '{printf("%s\t0\t%s\n",$1,$2);}' | grep -E "^CM|HG|LR|LG" | grep -v 'CM028292.1' > $SYN_DIR/SaMa.chrs_noMt.bed
 less $SYN_DIR/SaMa.chrs_noMt.bed | wc -l 
 ## Remove unplaced scaffolds and mitochondrion from fasta
-bedtools getfasta -fi "$SAMA" -bed $SYN_DIR/SaNa.chrs_noMt.bed > $SYN_DIR/SaNa.chrs_noMt.fasta
+bedtools getfasta -fi "$SAMA" -bed $SYN_DIR/SaMa.chrs_noMt.bed > $SYN_DIR/SaMa.chrs_noMt.fasta
 
 # 2. Rename chromosomes
 ## Make correspondance file
