@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Run on Manitou
-# srun -p medium -c 6 --mem=50G --time=7-00:00:00 -J RepeatMasker_SaNa -o log/RepeatMasker_SaNa_%j.log /bin/sh 01_scripts/RepeatMasker_SaNa.sh &
+# srun -p medium -c 6 --mem=50G --time=7-00:00:00 -J RepeatMasker_SaSa -o log/RepeatMasker_SaSa_%j.log /bin/sh 01_scripts/RepeatMasker_SaSa.sh &
 
 
 # VARIABLES
