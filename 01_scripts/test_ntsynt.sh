@@ -8,6 +8,8 @@
 # srun -p medium -c 6 --mem=100G --time=7-00:00:00 -J test_ntsynt_SaMa -o log/test_ntsynt_SaMa_on_SaFo_%j.log /bin/sh 01_scripts/test_ntsynt.sh SaMa &
 # srun -p medium -c 6 --mem=100G --time=7-00:00:00 -J test_ntsynt_SaSa -o log/test_ntsynt_SaSa_on_SaFo_%j.log /bin/sh 01_scripts/test_ntsynt.sh SaSa &
 # srun -p medium -c 6 --mem=100G --time=7-00:00:00 -J test_ntsynt_SaNa -o log/test_ntsynt_SaNa_on_SaFo_%j.log /bin/sh 01_scripts/test_ntsynt.sh SaNa &
+
+
 # srun -p medium -c 6 --mem=100G --time=7-00:00:00 -J test_ntsynt_SaFo -o log/test_ntsynt_SaFo_on_SaFo_%j.log /bin/sh 01_scripts/test_ntsynt.sh SaFo &
 
 
@@ -36,5 +38,5 @@ echo "aligning $QUERY on $REF"
 
 
 
-$NTSYNT -d 5 -p $OUTPUT_DIR/"$SPECIES"_on_SaFo_ntSynt $REF $QUERY
+$NTSYNT -d 10 --block_size 1000000 --indel 100000 --merge 1000000 --w_rounds 500 250 -t $CPU -p $OUTPUT_DIR/"$SPECIES"_on_SaFo_ntSynt_b1M_d10 $REF $QUERY
 
