@@ -11,24 +11,20 @@
 #cat $file_list > synteny/SaFo_"$SPECIES"/q"$SPECIES"chrs_on_rSaFo.maxmatch.mum
 
 # I use the conda env mummer with version 4.0.0 installed
-# parallel -a 02_infos/SaFo_corrected_chrs.txt -j 20 srun -p medium -c 8 --mem=100G --time=7-00:00:00 -J r{}_query_maskedSaFo_by_chrom -o log/nucmer_query_on_maskedSaFo_chrom_{}_%j.log /bin/sh 01_scripts/nucmer_query_on_maskedSaFo_chrom.sh {} SaNa &
+# parallel -a 02_infos/SaFo_corrected_chrs.txt -j 20 srun -p medium -c 2 --mem=100G --time=7-00:00:00 -J r{}_SaSaICSASG_maskedSaFo_by_chrom -o log/nucmer_SaSaICSASG_on_maskedSaFo_chrom_{}_%j.log /bin/sh 01_scripts/nucmer_SaSaICSASG_on_maskedSaFo_chrom.sh {} &
 
 
 # VARIABLES
 CPU=2
 
 CHR=$1
-SPECIES=$2
+SPECIES="SaSaICSASG"
 SYN_DIR="synteny"
 OUTPUT_DIR="$SYN_DIR/SaFo_$SPECIES"
 
-#REF="$SYN_DIR/ref_SaFo.chrs_noMt_renamed.fasta"
-#QUERY="$SYN_DIR/ref_SaFo.chrs_noMt_renamed.fasta"
-
-
-QUERY=$(find $SYN_DIR/SaFo_"$SPECIES" -type f -iname "query_$SPECIES.chrs_*renamed.fasta.masked")
+QUERY="$SYN_DIR/SaFo_"$SPECIES"/RepeatMasker_ICSASG/query_SaSaICSASG.chrs_renamed.fasta.masked"
 REF="$SYN_DIR/ref_SaFo.chrs_noMt_renamed.fasta.masked"
-#QUERY="$SYN_DIR/ref_SaFo.chrs_noMt_renamed.fasta.masked"
+
 
 # LOAD REQUIRED_MODULES
 #module load mummer/3.23
