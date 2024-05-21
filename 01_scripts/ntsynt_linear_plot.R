@@ -30,14 +30,14 @@ rchr_lengths <- rchr_lengths[, c('chrNum', 'size')]
 rchr_lengths$ID <- 'SaFo'
 
 # Add BC linkage groups 
-#LG_crrsp <- read.delim("~/SaFo_paper/linkage_group_correspondance_Claire_Ben.txt")
+LG_crrsp <- read.delim("~/SaFo_paper/linkage_group_correspondance_Claire_Ben.txt")
 
-#LG_crrsp$Ben_BC <- paste0('BC', LG_crrsp$Ben_BC)
+LG_crrsp$Ben_BC <- paste0('BC', LG_crrsp$Ben_BC)
 
-#rchr_lengths <- merge(x = rchr_lengths, y =LG_crrsp, by.x = 'chrNum', by.y = 'Claire_assembly')
+rchr_lengths <- merge(x = rchr_lengths, y =LG_crrsp, by.x = 'chrNum', by.y = 'Claire_assembly')
 #rchr_lengths$Ben_BC <- paste0('BC', rchr_lengths$Ben_BC)
-#rchr_lengths$chrNum <- paste0(rchr_lengths$chrNum, ' (', rchr_lengths$Ben_BC, ')')
-#rchr_lengths <- rchr_lengths[, c('chrNum', 'size', 'ID')]
+rchr_lengths$chrNum <- paste0(rchr_lengths$chrNum, ' (', rchr_lengths$Ben_BC, ')')
+rchr_lengths <- rchr_lengths[, c('chrNum', 'size', 'ID')]
 
 
 # 2. Import files for query 1 ---------------------------------------------
@@ -72,9 +72,9 @@ q1_synblocks_fmt$chr_query <- sapply(X = q1_synblocks_fmt$chr_query, FUN = funct
 
 
 # Add BC from Sutherland et al. 2016
-#q1_synblocks_fmt <- merge(x = q1_synblocks_fmt, y = LG_crrsp, by.x = 'chr_ref', by.y = 'Claire_assembly')
+q1_synblocks_fmt <- merge(x = q1_synblocks_fmt, y = LG_crrsp, by.x = 'chr_ref', by.y = 'Claire_assembly')
 
-#q1_synblocks_fmt$chr_ref <- paste0(q1_synblocks_fmt$chr_ref, ' (', q1_synblocks_fmt$Ben_BC, ')')
+q1_synblocks_fmt$chr_ref <- paste0(q1_synblocks_fmt$chr_ref, ' (', q1_synblocks_fmt$Ben_BC, ')')
 
 
 
@@ -135,9 +135,9 @@ q2_synblocks_fmt$chr_query <- sapply(X = q2_synblocks_fmt$chr_query, FUN = funct
 
 
 # Add BC from Sutherland et al. 2016
-#q2_synblocks_fmt <- merge(x = q2_synblocks_fmt, y = LG_crrsp, by.x = 'chr_ref', by.y = 'Claire_assembly')
+q2_synblocks_fmt <- merge(x = q2_synblocks_fmt, y = LG_crrsp, by.x = 'chr_ref', by.y = 'Claire_assembly')
 
-#q2_synblocks_fmt$chr_ref <- paste0(q2_synblocks_fmt$chr_ref, ' (', q2_synblocks_fmt$Ben_BC, ')')
+q2_synblocks_fmt$chr_ref <- paste0(q2_synblocks_fmt$chr_ref, ' (', q2_synblocks_fmt$Ben_BC, ')')
 
 
 
@@ -202,8 +202,34 @@ draw_linear_laurie(
 
 
 
+chr_blocks <- (unique(rchr_lengths$chrNum))
+cols_blocks <- vector(mode = 'character', length = nrow(rchr_lengths))
+#hex_cols <- (viridisLite::viridis(n = length(chr_blocks), option = 'D'))
+#hex_cols <- c(viridisLite::viridis(n = length(chr_blocks)/2, option = 'D'), viridisLite::viridis(n = length(chr_blocks)/2, option = 'C'))
+col_pair <- rep(c('grey20', 'blue'), (nrow(rchr_lengths)+1)/2)
 
+for (i in 1:length(chr_blocks)) {
+  names(cols_blocks)[i] <- chr_blocks[i]
+  cols_blocks[i] <- col_pair[i]
+}
 
+cols_vec_Q1 <- cols_blocks[match(q1_synblocks_fmt$chr_ref, names(cols_blocks))]
+cols_vec_Q2 <- cols_blocks[match(q2_synblocks_fmt$chr_ref, names(cols_blocks))]
+
+full_cols_vec <- c(cols_vec_Q1, cols_blocks, cols_vec_Q2)
+
+draw_linear_laurie(
+  directory = "~/SaFo_paper",
+  paste0('ntsynt_b1M_d10_', format(Sys.time(), "%Y%m%d.%H%M%S")),
+  #sizefile = "~/SaFo_paper/all_chrlengths_BC.txt", 
+  sizefile = "~/SaFo_paper/all_chrlengths.txt", 
+  #paste0(unlist(strsplit(Q1_BLOCKS, '.tsv')), '_BC_fmt.txt'),
+  #paste0(unlist(strsplit(Q2_BLOCKS, '.tsv')), '_BC_fmt.txt'),
+  paste0(unlist(strsplit(Q1_BLOCKS, '.tsv')), '_fmt.txt'),
+  paste0(unlist(strsplit(Q2_BLOCKS, '.tsv')), '_fmt.txt'),
+  colours = full_cols_vec)
+  #colours = rep(c('grey20', 'blue'), (nrow(all_chrlengths)+1)/2)
+)
 
 
 

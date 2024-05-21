@@ -3,7 +3,9 @@
 CHR_SIZES <- "~/SaFo_paper/SaFo.chrs_noMt.chrsizes.txt"
 CHR_BLOCKS <- "~/SaFo_paper/SaFo.chrs_for_blocks.txt"
 
-SELF_BLOCKS <- "~/SaFo_paper/maskedSaFo_maskedSaFo_blocks"
+#SELF_BLOCKS <- "~/SaFo_paper/maskedSaFo_maskedSaFo_blocks"
+SELF_BLOCKS <- "~/SaFo_paper/SaFo_self_masked_mindots30_topn2_blocks"
+#SELF_BLOCKS <- "~/SaFo_paper/maskedSaFo_on_maskedSaFo_mindots30_blocks"
 
 MIN_BLOCK_SIZE <- 1000000
 
@@ -26,6 +28,10 @@ self_syn_blocks <- read.delim(SELF_BLOCKS)
 self_syn_blocks$block_size1 <- self_syn_blocks$end1 - self_syn_blocks$start1
 self_syn_blocks$block_size2 <- self_syn_blocks$end2 - self_syn_blocks$start2
 
+TOT_CHR_SIZE <- 2218585108
+sum(self_syn_blocks$block_size1) / TOT_CHR_SIZE
+
+
 
 self_syn_blocks_filt <- subset(self_syn_blocks, block_size1 > MIN_BLOCK_SIZE & block_size2 > MIN_BLOCK_SIZE)
 
@@ -40,7 +46,7 @@ bed2 <- self_syn_blocks_filt[, c('grp2', 'start2', 'end2')]
 library(circlize)
 # Initialize plot space and chr bins
 circos.clear()
-col_text <- "grey40"
+col_text <- "grey10"
 circos.par("track.height"=0.8, gap.degree=1, cell.padding=c(0, 0, 0, 0))
 
 rchr_lengths$start <- 0
@@ -55,15 +61,15 @@ circos.track(ylim=c(0, 1), panel.fun=function(x, y) {
   ylim=CELL_META$ylim
   circos.text(mean(xlim), mean(ylim), chr, cex=0.5, col=col_text, 
               facing="bending.inside", niceFacing=TRUE)
-}, bg.col="grey90", bg.border=F, track.height=0.06)
+}, bg.col="grey50", bg.border=F, track.height=0.06)
 
 
 # Create color scheme, 1 for each grp1 chr
 chr_blocks <- sort(unique(self_syn_blocks_filt$grp1)) 
 # Assign a color to each svtype in a named vector
 cols_blocks <- vector(mode = 'character', length = length(chr_blocks))
-#hex_cols <- (viridisLite::viridis(n = length(chr_blocks), option = 'D'))
-hex_cols <- c(viridisLite::viridis(n = length(chr_blocks)/2, option = 'D'), viridisLite::viridis(n = length(chr_blocks)/2, option = 'C'))
+hex_cols <- (viridisLite::viridis(n = length(chr_blocks), option = 'D'))
+#hex_cols <- c(viridisLite::viridis(n = length(chr_blocks)/2, option = 'D'), viridisLite::viridis(n = length(chr_blocks)/2, option = 'C'))
 for (i in 1:length(chr_blocks)) {
   names(cols_blocks)[i] <- chr_blocks[i]
   cols_blocks[i] <- hex_cols[i]
@@ -120,7 +126,7 @@ cols_vec_small <- scales::alpha(cols_vec_small, alpha = 0.75)
 
 
 circos.clear()
-col_text <- "grey40"
+col_text <- "grey10"
 circos.par("track.height"=0.8, gap.degree=1, cell.padding=c(0, 0, 0, 0))
 
 rchr_lengths$start <- 0
@@ -135,11 +141,11 @@ circos.track(ylim=c(0, 1), panel.fun=function(x, y) {
   ylim=CELL_META$ylim
   circos.text(mean(xlim), mean(ylim), chr, cex=0.5, col=col_text, 
               facing="bending.inside", niceFacing=TRUE)
-}, bg.col="grey90", bg.border=F, track.height=0.06)
+}, bg.col="grey65", bg.border=F, track.height=0.06)
 
 
 circos.genomicLink(bed1_large, bed2_large, 
-                   col = cols_vec_large, lwd = 0.05, border = 'grey70')
+                   col = cols_vec_large, lwd = 0.04, border = 'grey70')
 circos.genomicLink(bed1_small, bed2_small, 
                    col = cols_vec_small)
 
