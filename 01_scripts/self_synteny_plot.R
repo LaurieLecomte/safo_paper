@@ -159,20 +159,65 @@ circos.genomicLink(bed1_small, bed2_small,
 
 
 
+# Add track for % similarity
 
-# Create color scheme, 1 for each grp1 chr
-chr_blocks <- sort(unique(self_syn_blocks_filt_large$grp1)) 
-# Assign a color to each svtype in a named vector
-cols_blocks <- vector(mode = 'character', length = length(chr_blocks))
-hex_cols <- (viridisLite::viridis(n = length(chr_blocks), option = 'D'))
-for (i in 1:length(chr_blocks)) {
-  names(cols_blocks)[i] <- chr_blocks[i]
-  cols_blocks[i] <- hex_cols[i]
-}
+identity_win <- read.delim("~/SaFo_paper/homolog_blocks_identity_0_win1Mb.bed", header=FALSE,
+                           col.names = c('CHROM', 'START', 'STOP', 'IDY', 'IDY_W'))
+identity_win$MID <- identity_win$START + ((identity_win$STOP - identity_win$START)/2)
 
-cols_vec <- cols_blocks[match(bed1_large$grp1, names(cols_blocks))]
-cols_vec <- scales::alpha(cols_vec, alpha = 0.5)
 
+
+circos.clear()
+
+circos.par("track.height"=0.8, gap.degree=0.5, cell.padding=c(0, 0, 0, 0))
+
+rchr_lengths$start <- 0
+rchr_lengths <- rchr_lengths[, c('chrNum', 'start', 'size')]
+
+circos.initialize(factors=rchr_lengths$chrNum, 
+                  xlim= rchr_lengths[, c('start', 'size')])
+
+
+circos.track(ylim=c(0, 1), 
+             panel.fun=function(x, y) {
+               chr=CELL_META$sector.index
+               xlim=CELL_META$xlim
+               ylim=CELL_META$ylim
+               circos.text(mean(xlim), mean(ylim), chr, cex=0.4, col='grey10', 
+                           facing="bending.inside", niceFacing=TRUE)
+}, bg.col="grey55", bg.border=F, track.height=0.04)
+
+
+#Create a function to generate a continuous color palette
+rbPal <- colorRampPalette(c('grey80','red', 'blue', 'black'))
+
+
+identity_win$cols_idy <- rbPal(20)[as.numeric(cut(identity_win$IDY_W, breaks = 20))]
+identity_win$cols_idy <- viridisLite::inferno(20)[as.numeric(cut(identity_win$IDY_W, breaks = 20))]
+
+# Add track for %similarity
+circos.genomicTrackPlotRegion(identity_win, ylim = c(0, 1),
+                              panel.fun = function(region, value, ...) {
+                                col = value$cols_idy
+                                circos.genomicRect(region, value, 
+                                                   ybottom = 0, ytop = 1, 
+                                                   col = col, border = NA)
+                                #xlim = get.cell.meta.data("xlim")
+                                
+                                #ylim = get.cell.meta.data("ylim")
+                                #chr = get.current.sector.index()
+                                #circos.text(mean(xlim), mean(ylim), chr)
+                              }, bg.border= 'black', track.height=0.08)
+
+
+
+
+
+# Add genomic links for homeologs
+circos.genomicLink(bed1_large, bed2_large, 
+                   col = cols_vec_large, lwd = 0.04, border = 'grey70')
+circos.genomicLink(bed1_small, bed2_small, 
+                   col = cols_vec_small)
 
 
 
