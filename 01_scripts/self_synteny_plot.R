@@ -1,5 +1,7 @@
 # Plot self synteny from Symap output
 
+options(scipen = 999)
+
 CHR_SIZES <- "~/SaFo_paper/SaFo.chrs_noMt.chrsizes.txt"
 CHR_BLOCKS <- "~/SaFo_paper/SaFo.chrs_for_blocks.txt"
 
@@ -41,6 +43,17 @@ bed2 <- self_syn_blocks_filt[, c('grp2', 'start2', 'end2')]
 
 
 
+# Get prop of each chr covered by a block ---------------------------------
+#less "SaFo_self_masked_mindots30_topn2_blocks_interchr_blocks" | cut -f1,4,5 | sort -k1,1 -k2,2 -n > "SaFo_self_masked_mindots30_topn2_blocks_interchr_blocks.sorted.bed"
+#bedtools merge -i "SaFo_self_masked_mindots30_topn2_blocks_interchr_blocks.sorted.bed" > "SaFo_self_masked_mindots30_topn2_blocks_interchr_blocks.sorted.merged.bed"
+
+blocks.sorted.merged$BP <- blocks.sorted.merged$STOP - blocks.sorted.merged$START
+
+blocks.sorted.merged <- merge(x = blocks.sorted.merged, y = rchr_lengths, 
+                                 by.x = 'CHROM', by.y = 'chrNum', sort = FALSE, all = TRUE)
+blocks.sorted.merged_bp <- blocks.sorted.merged %>% group_by(CHROM, size) %>% summarise(BP = sum(BP))
+
+blocks.sorted.merged_bp$prop <- blocks.sorted.merged_bp$BP/blocks.sorted.merged_bp$size
 
 # 3. Plot self synteny using circos ---------------------------------------
 library(circlize)
@@ -164,6 +177,18 @@ circos.genomicLink(bed1_small, bed2_small,
 identity_win <- read.delim("~/SaFo_paper/homolog_blocks_identity_0_win1Mb.bed", header=FALSE,
                            col.names = c('CHROM', 'START', 'STOP', 'IDY', 'IDY_W'))
 identity_win$MID <- identity_win$START + ((identity_win$STOP - identity_win$START)/2)
+identity_win$BP <- identity_win$STOP -identity_win$START
+
+# Plot distribution of weighted identity %
+library(ggplot2)
+
+ggplot(data = identity_win) +
+  geom_histogram(aes(x = IDY_W), binwidth = 2, col = 'black') +
+  stat_bin(aes(x = IDY_W, y=after_stat(count), 
+               label = round(after_stat(count)/nrow(identity_win), digits = 2)), 
+           geom="text", vjust=-.5, size = 3) +
+  scale_x_continuous(breaks=seq(0,100,5))
+
 
 
 
@@ -189,11 +214,11 @@ circos.track(ylim=c(0, 1),
 
 
 #Create a function to generate a continuous color palette
-rbPal <- colorRampPalette(c('grey80','red', 'blue', 'black'))
-
+#rbPal <- colorRampPalette(c('red', 'purple', 'blue', 'black'))
+rbPal <- colorRampPalette(c('white', 'grey80',  'grey50', 'black'))
 
 identity_win$cols_idy <- rbPal(20)[as.numeric(cut(identity_win$IDY_W, breaks = 20))]
-identity_win$cols_idy <- viridisLite::inferno(20)[as.numeric(cut(identity_win$IDY_W, breaks = 20))]
+#identity_win$cols_idy <- viridisLite::inferno(20)[as.numeric(cut(identity_win$IDY_W, breaks = 20))]
 
 # Add track for %similarity
 circos.genomicTrackPlotRegion(identity_win, ylim = c(0, 1),
@@ -207,9 +232,9 @@ circos.genomicTrackPlotRegion(identity_win, ylim = c(0, 1),
                                 #ylim = get.cell.meta.data("ylim")
                                 #chr = get.current.sector.index()
                                 #circos.text(mean(xlim), mean(ylim), chr)
-                              }, bg.border= 'black', track.height=0.08)
-
-
+                              }, bg.border= 'black', 
+                              #bg.col = 'red',
+                              track.height=0.06)
 
 
 
@@ -220,4 +245,157 @@ circos.genomicLink(bed1_small, bed2_small,
                    col = cols_vec_small)
 
 
+
+# Add coverage/depth info -------------------------------------------------
+
+
+depth <- read.delim("~/SaFo_paper/modepth_1Mb.txt.regions.bed.gz", header=FALSE,
+                    col.names = c('CHROM', 'START', 'STOP', 'MEAN_DEPTH'))
+depth$CHROM <- substr(depth$CHROM, start = 4, stop = 6)
+
+blue_no <- adjustcolor( "blue", alpha.f = 0.3)
+red_yes <- adjustcolor( "red", alpha.f = 0.3)
+
+
+depth$too_high <- ifelse(depth$MEAN_DEPTH > mean(depth$MEAN_DEPTH) + 2*(sd(depth$MEAN_DEPTH)),
+                         yes = red_yes , no = blue_no)
+
+
+
+circos.clear()
+
+circos.par("track.height"=0.8, gap.degree=0.5, cell.padding=c(0, 0, 0, 0))
+
+rchr_lengths$start <- 0
+rchr_lengths <- rchr_lengths[, c('chrNum', 'start', 'size')]
+
+circos.initialize(factors=rchr_lengths$chrNum, 
+                  xlim= rchr_lengths[, c('start', 'size')])
+
+
+circos.track(ylim=c(0, 1), 
+             panel.fun=function(x, y) {
+               chr=CELL_META$sector.index
+               xlim=CELL_META$xlim
+               ylim=CELL_META$ylim
+               circos.text(mean(xlim), mean(ylim), chr, cex=0.4, col='grey10', 
+                           facing="bending.inside", niceFacing=TRUE)
+             }, bg.col="grey55", bg.border=F, track.height=0.04)
+
+
+#Create a function to generate a continuous color palette
+
+rbPal <- colorRampPalette(c('white', 'grey80',  'grey50', 'black'))
+
+identity_win$cols_idy <- rbPal(20)[as.numeric(cut(identity_win$IDY_W, breaks = 20))]
+#identity_win$cols_idy <- viridisLite::inferno(20)[as.numeric(cut(identity_win$IDY_W, breaks = 20))]
+
+# Add track for depth
+circos.genomicTrackPlotRegion(depth, 
+                              ylim = c(min(depth$MEAN_DEPTH), max(depth$MEAN_DEPTH + 2)),
+                              panel.fun = function(region, value, ...) {
+                                #col = value$too_high
+                                col = value$too_high
+                                cex = sqrt(value$MEAN_DEPTH)/20
+                                circos.genomicPoints(region, value, 
+                                                   #ybottom = 0, 
+                                                   #ytop = 500, 
+                                                   col = col, 
+                                                   cex = cex, pch = 16,
+                                                   border = NA)
+                           
+                              }, bg.border= 'black',
+                              track.height=0.06)
+
+# Add track for %similarity
+circos.genomicTrackPlotRegion(identity_win, ylim = c(0, 1),
+                              panel.fun = function(region, value, ...) {
+                                col = value$cols_idy
+                                circos.genomicRect(region, value, 
+                                                   ybottom = 0, ytop = 1, 
+                                                   col = col, border = NA)
+                                #xlim = get.cell.meta.data("xlim")
+                                
+                                #ylim = get.cell.meta.data("ylim")
+                                #chr = get.current.sector.index()
+                                #circos.text(mean(xlim), mean(ylim), chr)
+                              }, bg.border= 'black', 
+                              #bg.col = 'red',
+                              track.height=0.06)
+
+
+
+
+# Add genomic links for homeologs
+circos.genomicLink(bed1_large, bed2_large, 
+                   col = cols_vec_large, 
+                   #lwd = 0.04, 
+                   #border = 'grey70'
+                   )
+circos.genomicLink(bed1_small, bed2_small, 
+                   col = cols_vec_small)
+
+
+# Where are located high similarity (>90%)?
+high_sim <- subset(identity_win,IDY_W > 90) 
+
+
+# Putatively collapsed regions --------------------------------------------
+intersect_depth_syn <- read.delim("~/SaFo_paper/intersect_depth_synblocks_1Mb.txt", 
+                                  header=FALSE, 
+                                  col.names = c('CHROM', 'START', 'STOP', 'MEAN_DEPTH', 
+                                                'BLOCK_CHROM', 'BLOCK_START', 'BLOCK_STOP', 'OVERLAP'))
+intersect_depth_syn$high_depth <- ifelse(intersect_depth_synblocks_1M$MEAN_DEPTH > mean(intersect_depth_syn$MEAN_DEPTH) + 2*(sd(intersect_depth_synblocks_1M$MEAN_DEPTH)),
+                         yes = 'yes', 
+                         no = 'no')
+
+intersect_depth_syn$homology <- ifelse(intersect_depth_syn$OVERLAP > 100,
+                                                yes = 'yes',
+                                                no = 'no')
+
+intersect_depth_syn$collapsed <- ifelse(intersect_depth_syn$high_depth == 'yes' & intersect_depth_syn$homology == 'no',
+                                        yes = 'yes',
+                                        no = 'no')
+collapsed <- subset(intersect_depth_syn, collapsed == 'yes')
+
+
+
+
+
+
+circos.clear()
+
+circos.par("track.height"=0.8, gap.degree=0.5, cell.padding=c(0, 0, 0, 0))
+
+rchr_lengths$start <- 0
+rchr_lengths <- rchr_lengths[, c('chrNum', 'start', 'size')]
+
+circos.initialize(factors=rchr_lengths$chrNum, 
+                  xlim= rchr_lengths[, c('start', 'size')])
+
+
+circos.track(ylim=c(0, 1), 
+             panel.fun=function(x, y) {
+               chr=CELL_META$sector.index
+               xlim=CELL_META$xlim
+               ylim=CELL_META$ylim
+               circos.text(mean(xlim), mean(ylim), chr, cex=0.4, col='grey10', 
+                           facing="bending.inside", niceFacing=TRUE)
+             }, bg.col="grey55", bg.border=F, track.height=0.04)
+
+circos.genomicTrackPlotRegion(collapsed[, 1:4], ylim = c(0, 1),
+                              panel.fun = function(region, value, ...) {
+                                #col = value$cols_idy
+                                circos.genomicRect(region, value, 
+                                                   ybottom = 0, ytop = 1, 
+                                                   col = 'blue', 
+                                                   border = NA)
+                                #xlim = get.cell.meta.data("xlim")
+                                
+                                #ylim = get.cell.meta.data("ylim")
+                                #chr = get.current.sector.index()
+                                #circos.text(mean(xlim), mean(ylim), chr)
+                              }, bg.border= 'black',
+                              #bg.col = 'red',
+                              track.height=0.06)
 
