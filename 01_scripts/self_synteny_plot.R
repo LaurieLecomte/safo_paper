@@ -1,4 +1,6 @@
 # Plot self synteny from Symap output
+library(tidyr)
+library(dplyr)
 
 options(scipen = 999)
 
@@ -46,7 +48,8 @@ bed2 <- self_syn_blocks_filt[, c('grp2', 'start2', 'end2')]
 # Get prop of each chr covered by a block ---------------------------------
 #less "SaFo_self_masked_mindots30_topn2_blocks_interchr_blocks" | cut -f1,4,5 | sort -k1,1 -k2,2 -n > "SaFo_self_masked_mindots30_topn2_blocks_interchr_blocks.sorted.bed"
 #bedtools merge -i "SaFo_self_masked_mindots30_topn2_blocks_interchr_blocks.sorted.bed" > "SaFo_self_masked_mindots30_topn2_blocks_interchr_blocks.sorted.merged.bed"
-
+blocks.sorted.merged <- read.delim("~/SaFo_paper/SaFo_self_masked_mindots30_topn2_blocks_interchr_blocks.sorted.merged.bed", header=FALSE,
+                                   col.names = c('CHROM', 'START', 'STOP'))
 blocks.sorted.merged$BP <- blocks.sorted.merged$STOP - blocks.sorted.merged$START
 
 blocks.sorted.merged <- merge(x = blocks.sorted.merged, y = rchr_lengths, 
@@ -262,6 +265,32 @@ depth$too_high <- ifelse(depth$MEAN_DEPTH > mean(depth$MEAN_DEPTH) + 2*(sd(depth
 
 
 
+
+
+
+
+
+
+
+# Best plot with everything together --------------------------------------
+
+
+
+#Create a function to generate a continuous color palette
+
+rbPal <- colorRampPalette(c('white', 'grey80',  'grey50', 'black'))
+
+identity_win <- subset(identity_win, IDY_W >= 50)
+
+identity_win$cols_idy <- rbPal(20)[as.numeric(cut(identity_win$IDY_W, breaks = 20))]
+#identity_win$cols_idy <- viridisLite::inferno(20)[as.numeric(cut(identity_win$IDY_W, breaks = 20))]
+
+
+
+
+
+
+
 circos.clear()
 
 circos.par("track.height"=0.8, gap.degree=0.5, cell.padding=c(0, 0, 0, 0))
@@ -281,14 +310,6 @@ circos.track(ylim=c(0, 1),
                circos.text(mean(xlim), mean(ylim), chr, cex=0.4, col='grey10', 
                            facing="bending.inside", niceFacing=TRUE)
              }, bg.col="grey55", bg.border=F, track.height=0.04)
-
-
-#Create a function to generate a continuous color palette
-
-rbPal <- colorRampPalette(c('white', 'grey80',  'grey50', 'black'))
-
-identity_win$cols_idy <- rbPal(20)[as.numeric(cut(identity_win$IDY_W, breaks = 20))]
-#identity_win$cols_idy <- viridisLite::inferno(20)[as.numeric(cut(identity_win$IDY_W, breaks = 20))]
 
 # Add track for depth
 circos.genomicTrackPlotRegion(depth, 
@@ -334,6 +355,28 @@ circos.genomicLink(bed1_large, bed2_large,
                    )
 circos.genomicLink(bed1_small, bed2_small, 
                    col = cols_vec_small)
+
+
+
+library(plotrix)
+color.legend(0.6, #left
+             -1, #bottom
+             0.9, #right
+             -0.95, #top
+             legend = c('50%', '100%'),
+             align = 'rb',
+             #rev(ddf$VAL),
+             rect.col = (rbPal(20)),
+             gradient="x",
+             cex = 0.7,
+             )
+text(x = 0.75, y = -0.92,
+     labels = 'similarity',
+     cex = 0.7)
+
+
+
+
 
 
 # Where are located high similarity (>90%)?
@@ -398,4 +441,5 @@ circos.genomicTrackPlotRegion(collapsed[, 1:4], ylim = c(0, 1),
                               }, bg.border= 'black',
                               #bg.col = 'red',
                               track.height=0.06)
+
 
