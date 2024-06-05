@@ -13,8 +13,8 @@ FINAL_NCBI_CHR="08_final_NCBI/GCA_029448725.1_ASM2944872v1_genomic_chrs.fasta"
 RMOD_DIR="08_final_NCBI/RepeatModeler"
 RMAS_DIR="08_final_NCBI/RepeatMasker/all_famdb_salmonidae"
 
-#SAFO_CLASS_LIB="08_final_NCBI/RepeatModeler/RM_117598.WedFeb71234362024/consensi.fa.classified"
 SAFO_CLASS_LIB="$RMOD_DIR/safo-families.fa"
+SAFO_SALMO_LIB="$RMAS_DIR/combined_safo_Salmonidae_desc.fa" # we use the custom library produced by the final_NCBI_RepeatMasker_famdb.sh script
 
 CPU=10
 
@@ -43,4 +43,4 @@ less $SAFO_CLASS_LIB | while read line; do echo $line | sed -E 's/(^.+)\ \(.+/\1
 cat $RMAS_DIR/famdb_Salmonidae_desc.fa "$RMAS_DIR/safo-families_renamed.fa" > $RMAS_DIR/combined_safo_Salmonidae_desc.fa
 
 # 3. Run RepeatMasker on all contigs, using the combined custom library
-RepeatMasker -pa $CPU $FINAL_NCBI -dir $RMAS_DIR -gff -lib $RMAS_DIR/combined_safo_Salmonidae_desc.fa
+RepeatMasker -pa $CPU $FINAL_NCBI -dir $RMAS_DIR -gff -lib $SAFO_SALMO_LIB
