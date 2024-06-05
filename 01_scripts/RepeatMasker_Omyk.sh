@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Run on Manitou
-# srun -p medium -c 8 --mem=50G --time=7-00:00:00 -J RepeatMasker_SaSa -o log/RepeatMasker_SaSa_%j.log /bin/sh 01_scripts/RepeatMasker_SaSa.sh &
+# srun -p large -c 15 --mem=50G --time=21-00:00:00 -J RepeatMasker_OMyk_ICSASG -o log/RepeatMasker_OMyk_ICSASG_%j.log /bin/sh 01_scripts/RepeatMasker_Omyk.sh &
 
 
 # VARIABLES
@@ -9,15 +9,18 @@
 FINAL_NCBI="08_final_NCBI/GCA_029448725.1_ASM2944872v1_genomic.fna"
 FINAL_NCBI_CHR="08_final_NCBI/GCA_029448725.1_ASM2944872v1_genomic_chrs.fasta"
 
-SYN_DIR="synteny/SaFo_SaSa"
+SYN_DIR="synteny/SaFo_OMyk"
 
-SASA="species_comparison/GCA_905237065.2_Ssal_v3.1_genomic.fna"
-SASA_CHRS="species_comparison/GCA_905237065.2_Ssal_v3.1_genomic_chrs.fna"
+#SASA="species_comparison/GCA_905237065.2_Ssal_v3.1_genomic.fna"
+#SASA_CHRS="species_comparison/GCA_905237065.2_Ssal_v3.1_genomic_chrs.fna"
+
+OMYK="species_comparison/GCA_013265735.3_USDA_OmykA_1.1_genomic.fna"
+OMYK_CHRS="species_comparison/GCA_013265735.3_USDA_OmykA_1.1_genomic_chrs.fna"
 
 RMOD_DIR="08_final_NCBI/RepeatModeler"
 RMAS_DIR="08_final_NCBI/RepeatMasker"
 
-CPU=8
+CPU=15
 
 SAFO_CLASS_LIB="$RMOD_DIR/safo-families.fa"
 SAFO_SALMO_LIB="$RMAS_DIR/all_famdb_salmonidae/combined_safo_Salmonidae_desc.fa" # we use the custom library produced by the final_NCBI_RepeatMasker_famdb.sh scripts
@@ -43,38 +46,38 @@ fi
 
 # 1. Extract chromosomes from fasta
 ## Index
-#samtools faidx $SASA
+#samtools faidx $OMYK
 ## Make bed and extract chr: Unplaced contigs names start with scaf (no mitochondrion in Ssal genome)
-less "$SASA".fai | awk -F '\t' '{printf("%s\t0\t%s\n",$1,$2);}' | grep -E "^CM|HG|LR" > $SYN_DIR/SaSa.chrs.bed
-less $SYN_DIR/SaSa.chrs.bed | wc -l 
+less "$OMYK".fai | awk -F '\t' '{printf("%s\t0\t%s\n",$1,$2);}' | grep -E "^CM|HG|LR" > $SYN_DIR/OMyk.chrs.bed
+less $SYN_DIR/OMyk.chrs.bed | wc -l 
 ## Remove unplaced scaffolds
-bedtools getfasta -fi $SASA -bed $SYN_DIR/SaSa.chrs.bed > $SYN_DIR/SaSa.chrs.fasta
+bedtools getfasta -fi $OMYK -bed $SYN_DIR/OMyk.chrs.bed > $SYN_DIR/OMyk.chrs.fasta
 
 # 2. Rename chromosomes
 ## Make correspondance file
-samtools faidx $SYN_DIR/SaSa.chrs.fasta
+samtools faidx $SYN_DIR/OMyk.chrs.fasta
 
-if [[ -f $SYN_DIR/SaSa.chrs.corrsp.txt ]]
+if [[ -f $SYN_DIR/OMyk.chrs.corrsp.txt ]]
 then
-  rm $SYN_DIR/SaSa.chrs.corrsp.txt
+  rm $SYN_DIR/OMyk.chrs.corrsp.txt
 fi
 
 
 count=0
-less $SYN_DIR/SaSa.chrs.fasta.fai | while read line
+less $SYN_DIR/OMyk.chrs.fasta.fai | while read line
 do
     ((count+=1))
     CHR=$(echo "$line" | cut -f1 )
-    echo -e "$CHR\tChr$count" >> $SYN_DIR/SaSa.chrs.corrsp.txt 
+    echo -e "$CHR\tChr$count" >> $SYN_DIR/OMyk.chrs.corrsp.txt 
 done
 
 ## I edited line 108 of Eric's script to avoid sorting chr by new character and preserve original order. I did not change sorting command at line 117 because I know I do not have other contigs than my main chrs. 
 ## # rename file to prevent issues with nucmer afterwards
-python3 01_scripts/rename_scaffolds.py $SYN_DIR/SaSa.chrs.fasta $SYN_DIR/SaSa.chrs.corrsp.txt 10000 $SYN_DIR/query_SaSa.chrs_renamed.fasta
+python3 01_scripts/rename_scaffolds.py $SYN_DIR/OMyk.chrs.fasta $SYN_DIR/OMyk.chrs.corrsp.txt 10000 $SYN_DIR/query_OMyk.chrs_renamed.fasta
 
 # 3. Create repeat library for Salmoniformes
 #queryRepeatDatabase.pl -species 'Salmoniformes' > $SYN_DIR/Salmoniformes.fa
  
 
 # 4. Run RepeatMasker renamed fasta
-#RepeatMasker -pa $CPU $SYN_DIR/query_SaSa.chrs_renamed.fasta -dir $SYN_DIR -gff -lib $SAFO_SALMO_LIB
+RepeatMasker -pa $CPU $SYN_DIR/query_OMyk.chrs_renamed.fasta -dir $SYN_DIR -gff -lib $SAFO_SALMO_LIB

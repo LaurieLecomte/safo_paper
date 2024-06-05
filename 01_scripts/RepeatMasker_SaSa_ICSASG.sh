@@ -1,26 +1,28 @@
 #!/bin/sh
 
 # Run on Manitou
-# srun -p medium -c 8 --mem=50G --time=7-00:00:00 -J RepeatMasker_SaSa -o log/RepeatMasker_SaSa_%j.log /bin/sh 01_scripts/RepeatMasker_SaSa.sh &
+# srun -p large -c 15 --mem=50G --time=21-00:00:00 -J RepeatMasker_SaSa_ICSASG -o log/RepeatMasker_SaSa_ICSASG_%j.log /bin/sh 01_scripts/RepeatMasker_SaSa_ICSASG.sh &
 
 
 # VARIABLES
 
-FINAL_NCBI="08_final_NCBI/GCA_029448725.1_ASM2944872v1_genomic.fna"
-FINAL_NCBI_CHR="08_final_NCBI/GCA_029448725.1_ASM2944872v1_genomic_chrs.fasta"
-
 SYN_DIR="synteny/SaFo_SaSa"
 
-SASA="species_comparison/GCA_905237065.2_Ssal_v3.1_genomic.fna"
-SASA_CHRS="species_comparison/GCA_905237065.2_Ssal_v3.1_genomic_chrs.fna"
+#SASA="species_comparison/GCA_905237065.2_Ssal_v3.1_genomic.fna"
+#SASA_CHRS="species_comparison/GCA_905237065.2_Ssal_v3.1_genomic_chrs.fna"
+
+SASA="species_comparison/GCA_000233375.4_ICSASG_v2_genomic.fna"
 
 RMOD_DIR="08_final_NCBI/RepeatModeler"
 RMAS_DIR="08_final_NCBI/RepeatMasker"
 
-CPU=8
+CPU=6
+
+RMOD_DIR="08_final_NCBI/RepeatModeler"
+RMAS_DIR="08_final_NCBI/RepeatMasker/all_famdb_salmonidae"
 
 SAFO_CLASS_LIB="$RMOD_DIR/safo-families.fa"
-SAFO_SALMO_LIB="$RMAS_DIR/all_famdb_salmonidae/combined_safo_Salmonidae_desc.fa" # we use the custom library produced by the final_NCBI_RepeatMasker_famdb.sh scripts
+SAFO_SALMO_LIB="$RMAS_DIR/combined_safo_Salmonidae_desc.fa" # we use the custom library produced by the final_NCBI_RepeatMasker_famdb.sh script
 
 # LOAD REQUIRED MODULES 
 module load gnu-openmpi/4.1.4
@@ -73,8 +75,8 @@ done
 python3 01_scripts/rename_scaffolds.py $SYN_DIR/SaSa.chrs.fasta $SYN_DIR/SaSa.chrs.corrsp.txt 10000 $SYN_DIR/query_SaSa.chrs_renamed.fasta
 
 # 3. Create repeat library for Salmoniformes
-#queryRepeatDatabase.pl -species 'Salmoniformes' > $SYN_DIR/Salmoniformes.fa
+queryRepeatDatabase.pl -species 'Salmoniformes' > $SYN_DIR/Salmoniformes.fa
  
 
 # 4. Run RepeatMasker renamed fasta
-#RepeatMasker -pa $CPU $SYN_DIR/query_SaSa.chrs_renamed.fasta -dir $SYN_DIR -gff -lib $SAFO_SALMO_LIB
+RepeatMasker -pa $CPU $SYN_DIR/query_SaSa.chrs_renamed.fasta -dir $SYN_DIR -gff -lib $SAFO_SALMO_LIB
