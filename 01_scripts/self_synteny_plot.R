@@ -58,6 +58,10 @@ blocks.sorted.merged_bp <- blocks.sorted.merged %>% group_by(CHROM, size) %>% su
 
 blocks.sorted.merged_bp$prop <- blocks.sorted.merged_bp$BP/blocks.sorted.merged_bp$size
 
+
+write.table(file = "~/SaFo_paper/SaFo_self_masked_mindots30_topn2_blocks_interchr_blocks_chr_props.txt",
+            blocks.sorted.merged_bp,
+            row.names = FALSE, col.names = FALSE, quote = FALSE, sep = "\t")
 # 3. Plot self synteny using circos ---------------------------------------
 library(circlize)
 # Initialize plot space and chr bins
@@ -278,7 +282,8 @@ depth$too_high <- ifelse(depth$MEAN_DEPTH > mean(depth$MEAN_DEPTH) + 2*(sd(depth
 
 #Create a function to generate a continuous color palette
 
-rbPal <- colorRampPalette(c('white', 'grey80',  'grey50', 'black'))
+#rbPal <- colorRampPalette(c('white', 'grey80',  'grey50', 'black'))
+rbPal <- colorRampPalette(c('white',  'black'))
 
 identity_win <- subset(identity_win, IDY_W >= 50)
 
@@ -307,9 +312,9 @@ circos.track(ylim=c(0, 1),
                chr=CELL_META$sector.index
                xlim=CELL_META$xlim
                ylim=CELL_META$ylim
-               circos.text(mean(xlim), mean(ylim), chr, cex=0.4, col='grey10', 
+               circos.text(mean(xlim), mean(ylim), chr, cex=0.5, col='grey10', 
                            facing="bending.inside", niceFacing=TRUE)
-             }, bg.col="grey55", bg.border=F, track.height=0.04)
+             }, bg.col="grey60", bg.border=F, track.height=0.04)
 
 # Add track for depth
 circos.genomicTrackPlotRegion(depth, 
@@ -317,7 +322,7 @@ circos.genomicTrackPlotRegion(depth,
                               panel.fun = function(region, value, ...) {
                                 #col = value$too_high
                                 col = value$too_high
-                                cex = sqrt(value$MEAN_DEPTH)/20
+                                cex = sqrt(value$MEAN_DEPTH)/30
                                 circos.genomicPoints(region, value, 
                                                    #ybottom = 0, 
                                                    #ytop = 500, 
@@ -341,8 +346,9 @@ circos.genomicTrackPlotRegion(identity_win, ylim = c(0, 1),
                                 #chr = get.current.sector.index()
                                 #circos.text(mean(xlim), mean(ylim), chr)
                               }, bg.border= 'black', 
-                              #bg.col = 'red',
+                              bg.col = 'steelblue1',
                               track.height=0.06)
+
 
 
 
@@ -388,7 +394,7 @@ intersect_depth_syn <- read.delim("~/SaFo_paper/intersect_depth_synblocks_1Mb.tx
                                   header=FALSE, 
                                   col.names = c('CHROM', 'START', 'STOP', 'MEAN_DEPTH', 
                                                 'BLOCK_CHROM', 'BLOCK_START', 'BLOCK_STOP', 'OVERLAP'))
-intersect_depth_syn$high_depth <- ifelse(intersect_depth_synblocks_1M$MEAN_DEPTH > mean(intersect_depth_syn$MEAN_DEPTH) + 2*(sd(intersect_depth_synblocks_1M$MEAN_DEPTH)),
+intersect_depth_syn$high_depth <- ifelse(intersect_depth_syn$MEAN_DEPTH > mean(intersect_depth_syn$MEAN_DEPTH) + 2*(sd(intersect_depth_syn$MEAN_DEPTH)),
                          yes = 'yes', 
                          no = 'no')
 
@@ -402,7 +408,13 @@ intersect_depth_syn$collapsed <- ifelse(intersect_depth_syn$high_depth == 'yes' 
 collapsed <- subset(intersect_depth_syn, collapsed == 'yes')
 
 
+write.table(file = "~/SaFo_paper/intersect_depth_synblocks_1Mb_putative_collapsed.txt",
+            collapsed,
+            row.names = FALSE, col.names = FALSE, quote = FALSE, sep = "\t")
 
+
+# Compute number of bp in putatively collapsed regions
+sum(collapsed$STOP - collapsed$START) / TOT_CHR_SIZE
 
 
 
