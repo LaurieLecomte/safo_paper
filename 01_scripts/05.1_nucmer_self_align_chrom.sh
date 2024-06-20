@@ -25,14 +25,9 @@ SPECIES="SaFo"
 SYN_DIR="synteny"
 OUTPUT_DIR="$SYN_DIR/SaFo_$SPECIES"
 
-#REF="$SYN_DIR/ref_SaFo.chrs_noMt_renamed.fasta"
-#QUERY="$SYN_DIR/ref_SaFo.chrs_noMt_renamed.fasta"
-
 REF="$SYN_DIR/ref_SaFo.chrs_noMt_renamed.fasta.masked"
-#QUERY="$SYN_DIR/ref_SaFo.chrs_noMt_renamed.fasta.masked"
 
 # LOAD REQUIRED_MODULES
-#module load mummer/3.23
 module load samtools/1.15
 
 
@@ -50,12 +45,10 @@ fi
 
 # Extract chr in fasta for using as query 
 # First split fasta by chr
-#module load samtools/1.15
-#less $CHR_LIST | while read CHR; do samtools faidx $GENOME $CHR > $OUTPUT_DIR/chr/SaFo_"$CHR"_masked.fasta; done
-##samtools faidx $QUERY $CHR > $OUTPUT_DIR/q"$CHR"_renamed_masked.fasta
+less $CHR_LIST | while read CHR; do samtools faidx $GENOME $CHR > $OUTPUT_DIR/chr/SaFo_"$CHR"_masked.fasta; done
+samtools faidx $QUERY $CHR > $OUTPUT_DIR/q"$CHR"_renamed_masked.fasta
 
-
-
+# Map each chr against all chromosomes
 echo "aligning $CHR on $REF"
 #using the parameters from Weissensteiner et al
 # -l is the minimum length of the single match (default =20)
