@@ -1,6 +1,8 @@
+# A custom implementation of the draw_linear() function originally provided in the syntenyPlotteR package (https://github.com/Farre-lab/syntenyPlotteR/blob/9623174a881f8e15b19362d4a5985d5e0109b52b/R/DrawSyntenyPlot.R#L212)
+
 draw_linear_laurie <-
   function (output,
-            sizefile,
+             ,
             ...,
             directory = NULL,
             fileformat = "png",
