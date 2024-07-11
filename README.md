@@ -1,18 +1,18 @@
 # Post-assembly analysis of the brook trout (*Salvelinus fontinalis*) genome assembly ASM2944872v1
 
-This repository contains the scripts used for various post-assembly analyses described in Chromosome-level genome assembly of a doubled haploid brook trout (*Salvelinus fontinalis*). 
+This repository contains the scripts used for various post-assembly analyses described in the paper Chromosome-level genome assembly of a doubled haploid brook trout (*Salvelinus fontinalis*) (in production). 
 
-The ASM2944872v1 assembly was produced from a combination of ccs mode PacBio long reads (120X), high coverage Illumina NovaSeq6000 short reads (70-80X) and Hi-C data, and is available from GenBank (accession GCA_029448725.1) and RefSeq (accession GCF_029448725.1).
+The ASM2944872v1 assembly was produced from a combination of ccs mode PacBio long reads (120X), high coverage Illumina NovaSeq6000 short reads (70-80X) and Hi-C data, and is available from GenBank (accession GCA_029448725.1) and RefSeq (accession [GCF_029448725.1](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_029448725.1/)).
 
 For details on assembly procedure, tools and parameters, see the Methods section in the paper.
 
 These analyses relied mainly on the final assembly fasta downloaded from RefSeq, but also on the intermediary files produced during the assembly procedure and the following genome assemblies of other salmonid species:
-* Lake trout (*Salvelinus namaycush*): SaNama_1.0; GCF_016432855.1 (SaNa)
-* Dolly Varden (*Salvelinus* sp. IW2-2015): ASM291031v2; GCF_002910315.2 (referred to as SaMa as *S. malma*)
-* Rainbow trout (*Oncorhynchus mykiss*): USDA_OmykA_1.1; GCF_013265735.2 (OMyk)
-* River trout (*Salmo trutta*): fSalTru1.1; GCF_901001165.1	(SaTr)
-* Atlantic salmon (*Salmo salar*): ICSASG_v2; GCF_000233375.1 (SaSa)
-* Lake whitefish (*Coregonus clupeaformis*): ASM2061545v1; GCF_020615455.1 (CoCl)
+* Lake trout (*Salvelinus namaycush*): SaNama_1.0; [GCF_016432855.1](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_016432855.1/) (SaNa)
+* Dolly Varden (*Salvelinus* sp. IW2-2015): ASM291031v2; [GCF_002910315.2](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_002910315.2/) (referred to as SaMa as *S. malma*)
+* Rainbow trout (*Oncorhynchus mykiss*): USDA_OmykA_1.1; [GCF_013265735.2](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_013265735.2/) (OMyk)
+* River trout (*Salmo trutta*): fSalTru1.1; [GCF_901001165.1](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_901001165.1/) (SaTr)
+* Atlantic salmon (*Salmo salar*): ICSASG_v2; [GCF_000233375.1](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000233375.1/) (SaSa)
+* Lake whitefish (*Coregonus clupeaformis*): ASM2061545v1; [GCF_020615455.1](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_020615455.1/) (CoCl)
 
 For synteny analyses, only the brook trout (SaFo), lake trout (SaNa) and Atlantic salmon (SaSa) genomes were used.
 
