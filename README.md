@@ -31,3 +31,14 @@ For synteny analyses, only the brook trout (SaFo), lake trout (SaNa) and Atlanti
     * Self vs self genome alignment of SaFo chromosomes: `05.1_nucmer_self_align_chrom.sh`
     * Estimate % homology between homeologous regions: `05.2_lastz_align_blocks.sh`
     * Estimate coverage across the genome to highligh putatively collapsed regions: `05.3_depth.sh`
+    
+Shield: [![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa]
+
+This work is licensed under a
+[Creative Commons Attribution-ShareAlike 4.0 International License][cc-by-sa].
+
+[![CC BY-SA 4.0][cc-by-sa-image]][cc-by-sa]
+
+[cc-by-sa]: http://creativecommons.org/licenses/by-sa/4.0/
+[cc-by-sa-image]: https://licensebuttons.net/l/by-sa/4.0/88x31.png
+[cc-by-sa-shield]: https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg
