@@ -140,8 +140,6 @@ q2_synblocks_fmt <- merge(x = q2_synblocks_fmt, y = LG_crrsp, by.x = 'chr_ref', 
 q2_synblocks_fmt$chr_ref <- paste0(q2_synblocks_fmt$chr_ref, ' (', q2_synblocks_fmt$Ben_BC, ')')
 
 
-
-
 #write.table(q2_synblocks_fmt[, 1:9], file = paste0(unlist(strsplit(Q2_BLOCKS, '.tsv')), '_BC_fmt.txt'),
 write.table(q2_synblocks_fmt[, 1:9], file = paste0(unlist(strsplit(Q2_BLOCKS, '.tsv')), '_fmt.txt'),
             row.names = FALSE, col.names = FALSE, quote = FALSE, sep = "\t")
@@ -172,137 +170,21 @@ q2chr_lengths <- q2chr_lengths[order(match(q2chr_lengths$chrNum, unique(q2_chr_o
 
 # 4. Test syntenyPlotteR --------------------------------------------------
 all_chrlengths <- rbind(q1chr_lengths, rchr_lengths, q2chr_lengths)
-#all_chrlengths <- rbind(rchr_lengths, q2chr_lengths)
-
-#write.table(all_chrlengths, file = "~/SaFo_paper/all_chrlengths_BC.txt",
+                                     
 write.table(all_chrlengths, file = "~/SaFo_paper/all_chrlengths.txt",
             row.names = FALSE, col.names = FALSE, quote = FALSE, sep = "\t")
 
-#write.table(all_chrlengths, file = "~/SaFo_paper/Q2_REF_chrlengths.txt",
- #           row.names = FALSE, col.names = FALSE, quote = FALSE, sep = "\t")
-
-
 
 library(syntenyPlotteR)
-
+# Source custom version of draw_linear() function
+source("custom_draw_linear.R")
+                                     
 draw_linear_laurie(
   directory = "~/SaFo_paper",
   paste0('ntsynt_b1M_d10_', format(Sys.time(), "%Y%m%d.%H%M%S")),
   #sizefile = "~/SaFo_paper/all_chrlengths_BC.txt", 
   sizefile = "~/SaFo_paper/all_chrlengths.txt", 
-  #paste0(unlist(strsplit(Q1_BLOCKS, '.tsv')), '_BC_fmt.txt'),
-  #paste0(unlist(strsplit(Q2_BLOCKS, '.tsv')), '_BC_fmt.txt'),
   paste0(unlist(strsplit(Q1_BLOCKS, '.tsv')), '_fmt.txt'),
   paste0(unlist(strsplit(Q2_BLOCKS, '.tsv')), '_fmt.txt'),
   colours = rep(c('grey20', 'blue'), nrow(rchr_lengths))
-  #colours = rep(c('grey20', 'blue'), (nrow(all_chrlengths)+1)/2)
   )
-
-
-
-
-
-chr_blocks <- (unique(rchr_lengths$chrNum))
-cols_blocks <- vector(mode = 'character', length = nrow(rchr_lengths))
-#hex_cols <- (viridisLite::viridis(n = length(chr_blocks), option = 'D'))
-#hex_cols <- c(viridisLite::viridis(n = length(chr_blocks)/2, option = 'D'), viridisLite::viridis(n = length(chr_blocks)/2, option = 'C'))
-col_pair <- rep(c('grey20', 'blue'), (nrow(rchr_lengths)+1)/2)
-
-for (i in 1:length(chr_blocks)) {
-  names(cols_blocks)[i] <- chr_blocks[i]
-  cols_blocks[i] <- col_pair[i]
-}
-
-cols_vec_Q1 <- cols_blocks[match(q1_synblocks_fmt$chr_ref, names(cols_blocks))]
-cols_vec_Q2 <- cols_blocks[match(q2_synblocks_fmt$chr_ref, names(cols_blocks))]
-
-full_cols_vec <- c(cols_vec_Q1, cols_blocks, cols_vec_Q2)
-
-draw_linear_laurie(
-  directory = "~/SaFo_paper",
-  paste0('ntsynt_b1M_d10_', format(Sys.time(), "%Y%m%d.%H%M%S")),
-  #sizefile = "~/SaFo_paper/all_chrlengths_BC.txt", 
-  sizefile = "~/SaFo_paper/all_chrlengths.txt", 
-  #paste0(unlist(strsplit(Q1_BLOCKS, '.tsv')), '_BC_fmt.txt'),
-  #paste0(unlist(strsplit(Q2_BLOCKS, '.tsv')), '_BC_fmt.txt'),
-  paste0(unlist(strsplit(Q1_BLOCKS, '.tsv')), '_fmt.txt'),
-  paste0(unlist(strsplit(Q2_BLOCKS, '.tsv')), '_fmt.txt'),
-  colours = full_cols_vec)
-  #colours = rep(c('grey20', 'blue'), (nrow(all_chrlengths)+1)/2)
-)
-
-
-
-
-q2_synblocks_dist <- 
-  q2_synblocks %>% 
-  group_by(chr_ref) %>%  
-  arrange(chr_query, chr_ref, start_ref) %>% 
-  mutate(distance = (start_ref - lag(end_ref, n = 1, default = 0)))
-
-q2_synblocks_dist$orient <- q2_synblocks_dist$strand_ref
-
-q2_synblocks_dist$rID <- 'SaFo'
-q2_synblocks_dist$qID <- 'SaSa'
-
-q2_synblocks_dist$chr_ref <- sapply(X = q2_synblocks_dist$chr_ref, FUN = function(x) substr(x, start = 4, stop = 6))
-q2_synblocks_dist$chr_query <- sapply(X = q2_synblocks_dist$chr_query, FUN = function(x) substr(x, start = 4, stop = 6))
-
-
-# Add BC from Sutherland et al. 2016
-#q2_synblocks_dist_fmt <- merge(x = q2_synblocks_dist, y = LG_crrsp, by.x = 'chr_ref', by.y = 'Claire_assembly')
-#q2_synblocks_dist_fmt$chr_ref <- paste0(q2_synblocks_dist_fmt$chr_ref, ' (', q2_synblocks_dist_fmt$Ben_BC, ')')
-
-q2_synblocks_dist_rfmt <- q2_synblocks_dist
-
-for (i in 1:nrow(q2_synblocks_dist)){
-  if (q2_synblocks_dist$distance[i] < 100000){
-    
-    if (q2_synblocks_dist$orient[i] == q2_synblocks_dist$orient[i-1] & q2_synblocks_dist$chr_ref[i] == q2_synblocks_dist$chr_ref[i-1] & q2_synblocks_dist$chr_query[i] == q2_synblocks_dist$chr_query[i-1]){
-      print('pouf')
-      q2_synblocks_dist_rfmt$end_ref[i-1] <- q2_synblocks_dist$end_ref[i]
-      q2_synblocks_dist_rfmt$end_query[i-1] <- q2_synblocks_dist$end_query[i]
-    }
-    
-  }
-}
-
-q2_synblocks_dist_rfmt <- subset(q2_synblocks_dist_rfmt, distance >= 100000)
-#q2_synblocks_dist_rfmt <- subset(q2_synblocks_dist_rfmt, size_ref > 2000000)
-
-q2_synblocks_dist_rfmt <- subset(q2_synblocks_dist_rfmt, size_ref > MIN_BLOCK_SIZE & size_query > MIN_BLOCK_SIZE)
-
-
-write.table(q2_synblocks_dist_rfmt[, c('chr_ref', 'start_ref', 'end_ref', 'chr_query', 'start_query', 'end_query', 'orient', 'rID', 'qID')], 
-            file = paste0(unlist(strsplit(Q2_BLOCKS, '.tsv')), '_dist_rfmt.txt'),
-            row.names = FALSE, col.names = FALSE, quote = FALSE, sep = "\t")
-
-
-draw_linear_laurie(directory = "~/SaFo_paper",
-                   paste0('synteny_SaNa_SaFo_SaSaICSASG_', format(Sys.time(), "%Y%m%d.%H%M%S")),
-                   sizefile = "~/SaFo_paper/all_chrlengths.txt", 
-                   paste0(unlist(strsplit(Q1_BLOCKS, '.tsv')), '_fmt.txt'),
-                   paste0(unlist(strsplit(Q2_BLOCKS, '.tsv')), '_dist_rfmt.txt'),
-                   #"~/SaFo_paper/querySaSaICSASG_to_refSaFo/maskedSaSaICSASG_on_maskedSaFo_blocks_nucmer_dist_rfmt.txt",
-                   colours = rep(c('black', 'blue'), (nrow(all_chrlengths)+1)/2))
-
-
-
-
-
-
-
-
-
-
-
-
-
-SaFo_SaSa_unique_pairs <- unique(Q2_blocks_fmt[, c('chr_ref', 'chr_query')])
-SaFo_SaSa_unique_pairs$chr_query <- as.numeric(SaFo_SaSa_unique_pairs$chr_query)
-SaFo_SaSa_unique_pairs <- SaFo_SaSa_unique_pairs[order(SaFo_SaSa_unique_pairs$chr_query), ]
-
-
-
-write.table(SaFo_SaSa_unique_pairs, file = "~/SaFo_paper/SaFo_SaSa1.3_unique_chr_pairs.txt",
-            sep = "\t", quote = FALSE, row.names = FALSE, col.names = c('chr_ref_SaFo', 'chr_query_SaSa1.3'))
