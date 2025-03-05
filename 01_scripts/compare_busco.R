@@ -63,7 +63,7 @@ duplicated_safo <- subset(combined_wide, safo == 'Duplicated')
 
 # Export 
 write.table(combined_wide, file = 'species_comparison/busco/combined_busco.txt', sep = "\t", quote = FALSE, row.names = FALSE)
-
+  
 
 
 
