@@ -56,7 +56,7 @@ all_complete <- subset(combined_wide, Complete == 7)
 all_duplicated <- subset(combined_wide, Duplicated == 7)
 all_missing <- subset(combined_wide, Missing == 7)
 
-# Check missing and duplicated in safo
+# Check missing and duplicated in safo 
 missing_safo <- subset(combined_wide, safo == 'Missing')
 duplicated_safo <- subset(combined_wide, safo == 'Duplicated')
 
