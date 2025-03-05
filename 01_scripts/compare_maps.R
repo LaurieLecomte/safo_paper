@@ -40,7 +40,7 @@ for (sp1 in levels(data.pairs[,sp1_col])) {
 
             # png output
             figure_name = paste(sp2, "_", sp1, ".png", sep="")
-            png(paste(figure_folder, figure_name, sep="/"), width=1000, height=1000)
+            png(paste(figure_folder, figure_name, sep="/"), width=1000, height=1000, res = 350)
 
             # Create empty figure of the appropriate dimensions
             plot(data.sp[,(sp1_col+3)], data.sp[,(sp2_col+3)],
@@ -53,13 +53,13 @@ for (sp1 in levels(data.pairs[,sp1_col])) {
                  #ylab=paste(sp2, "map (distances in CM)"),
                  #ylab=paste('3,826 markers from Sutherland et al. (2016)', "(distances in CM)"),
                  ylab= ifelse(sp2 == 'Ben',
-                               yes = paste('Sutherland et al. map (2016) - 3,826 markers', "(distances in CM)"),
+                               yes = paste('Sutherland et al. (2016) map - 3,826 markers', "(distances in CM)"),
                                no = paste(sp2, "map (distances in CM)")),
                                
                  pch=19,
                  #col="#00000088",
                  col = 'blue',
-                 cex.lab = 1.2,
+                 cex.lab = 0.8,
                  type="n",
                  bty="n",
                  xaxt="n",
@@ -79,26 +79,26 @@ for (sp1 in levels(data.pairs[,sp1_col])) {
             maximum.axis.position.x = max(sp1.data[, 4])
             axis.positions.x = seq(0, maximum.axis.position.x, by=axis.increment)
             axis.text.x = as.integer(axis.positions.x)
-            axis(1, at=axis.positions.x, labels=axis.text.x, las=1, cex.axis=1)
+            axis(1, at=axis.positions.x, labels=axis.text.x, las=1, cex.axis=0.7)
 
             # Y axis
             maximum.axis.position.y = max(sp2.data[, 4])
             axis.positions.y = seq(0, maximum.axis.position.y, by=axis.increment)
             axis.text.y = as.integer(axis.positions.y)
-            axis(2, at=axis.positions.y, labels=axis.text.y, las=1, cex.axis=1)
+            axis(2, at=axis.positions.y, labels=axis.text.y, las=1, cex.axis=0.7)
 
             # Adding linkage group names for species 1 on x axis
             for (lg in sp1.lgs){
                 minimum = sp1.data[sp1.data[,2] == lg, 3]
                 maximum = sp1.data[sp1.data[,2] == lg, 4]
-                text((maximum + minimum) / 2, -30, lg, cex=0.8)
+                text((maximum + minimum) / 2, -50, lg, cex=0.4)
             }
 
             # Adding linkage group names for species 2 on y axis
             for (lg in sp2.lgs){
                 minimum = sp2.data[sp2.data[,2] == lg, 3]
                 maximum = sp2.data[sp2.data[,2] == lg, 4]
-                text(-30, (maximum + minimum) / 2, lg, cex=0.8)
+                text(-30, (maximum + minimum) / 2, lg, cex=0.4)
             }
 
             # Iterate through linkage group pairs
