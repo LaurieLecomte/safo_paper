@@ -2,7 +2,7 @@
 
 This repository contains the scripts used for various post-assembly analyses described in the paper Chromosome-level genome assembly of a doubled haploid brook trout (*Salvelinus fontinalis*) (in production). 
 
-The folder `01_scripts` contains scripts used for post-assembly steps (stats, assembly comparison, ...). These scripts generate files that are meant to be outputted in the `species_comparison` and `synteny` destination folders.
+The folder `01_scripts` contains scripts used for post-assembly steps (stats, assembly comparison, ...). These scripts generate output files that are meant to be written in the empty `species_comparison` and `synteny` destination folders that are part of this repository.
 
 
 The ASM2944872v1 assembly was produced from a combination of ccs mode PacBio long reads (120X), high coverage Illumina NovaSeq6000 short reads (70-80X) and Hi-C data, and is available from GenBank (accession GCA_029448725.1) and RefSeq (accession [GCF_029448725.1](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_029448725.1/)).
